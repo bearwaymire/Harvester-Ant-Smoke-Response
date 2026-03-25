@@ -1,1 +1,0 @@
-# Harvester-Ant-Smoke-Response
