@@ -1,6 +1,15 @@
 
 #Mound Analysis
 
+# This script processes mound activity data collected before treatment and at
+# 30 seconds and 5 minutes post-treatment for control and smoke trials.
+# For each trial, it calculates both the difference (post - pre) and the
+# proportional difference [(post - pre) / pre] relative to the pre-treatment count.
+# Bayesian mixed-effects models are then fit separately for the 30-second and
+# 5-minute responses to evaluate effects of Population and Treatment, with Colony
+# included as a random effect. Final proportional differences are visualized using
+# faceted boxplots.
+
 #Load packages
 library(tidyverse)   
 library(lmerTest)  
@@ -26,25 +35,12 @@ mound_differences <- mound_original %>%
   dplyr::select(-pre_count) 
 
 #Remove pre-counts to model and plot the proportional differences 
-mound_differences <- mound_differences[mound_long$Window!='pre',] 
+mound_differences <- mound_differences[mound_differences$Window!='pre',] 
 
 #Create df with only 30sec or 5min timeframes to model separately
-difference_30only <- mound_data[mound_differences$Window=="30sec",]
+difference_30only <- mound_differences[mound_differences$Window=="30sec",]
 
-difference_5only <- mound_data[mound_differences$Window=="5min",]
-
-###OLD: Step 3: Create models, run Anovas, and test fit
-
-M_30_mound <- lmer(rel_diff ~ Population + Treatment + (1 | Colony), data=difference_30only)
-summary(M_30_mound)
-anova(M_30_mound, type = 2, ddf = "Satterthwaite") #significant for Treatment
-
-M_5_mound <- lmer(rel_diff ~ Population + Treatment + (1 | Colony), data=difference_5only)
-summary(M_5_mound)
-anova(M_5_mound, type = 2, ddf = "Satterthwaite") 
-
-check_model(M_30_mound)
-check_model(M_5_mound)
+difference_5only <- mound_differences[mound_differences$Window=="5min",]
 
 ### STEP 2: Create models, summarize findings, and check models
 
@@ -56,7 +52,6 @@ check_model(model_30)
 # % of variation explained by the random effect:
 m_c_r_2_model_30 = r2_nakagawa(model_30) 
 100*(m_c_r_2_model_30$R2_conditional - m_c_r_2_model_30$R2_marginal) # very low! (1.975468%)
-
 
 ##relative difference of ants on mound after 5 minutes
 model_5 <- brm(rel_diff ~ Population + Treatment + (1|Colony), data=difference_5only)

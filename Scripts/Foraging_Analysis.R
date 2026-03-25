@@ -1,6 +1,16 @@
 
 #Foraging Analysis
 
+# This script processes foraging count data of Veromessor andrei from Sedwick
+# UC Reserve collected before treatment, 30 seconds post-treatment, and 5 minutes
+# post-treatment for incoming and outgoing ants. Counts are converted from 
+# wide to long format, and both difference (post - pre) and 
+# proportional difference [(post - pre) / pre] are calculated for each trial. 
+# Bayesian mixed-effects models are then fit separately for incoming and
+# outgoing foraging at 30 seconds and 5 minutes to evaluate effects of
+# Population and Treatment, with Colony included as a random intercept.
+# Final proportional differences are visualized using boxplots.
+
 #load packages
 library(tidyverse)
 library(lmerTest)
